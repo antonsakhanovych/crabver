@@ -1,6 +1,14 @@
-use std::io::{BufRead, BufReader, Read, Write};
-use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::sync::Arc;
+use crabver::{
+    client::{self, Client},
+    message::MessageType,
+    processor::Processor,
+};
+use std::net::{SocketAddr, TcpListener};
+use std::sync::{
+    mpsc::{self, Receiver, Sender},
+    Arc,
+};
+
 use std::thread;
 
 fn main() {
@@ -9,45 +17,19 @@ fn main() {
 
     println!("Listenting on: {}", address);
 
+    let (sender, receiver): (Sender<MessageType>, Receiver<MessageType>) = mpsc::channel();
+
+    let processor = Processor::new(receiver);
+    thread::spawn(move || processor.serve());
     for stream in listener.incoming() {
+        let sender = sender.clone();
         match stream {
             Ok(stream) => {
                 let stream = Arc::new(stream);
-                thread::spawn(move || handle_client(stream));
-                ()
+                let client = Client::new(stream, sender);
+                thread::spawn(move || client::handle_client(client));
             }
             Err(e) => eprintln!("Couldn't accept because of {}", e),
         }
     }
-}
-
-const MESSAGE: &'static str = "Hello there stranger\n";
-
-enum MessageError {
-    WrongSyntax,
-}
-
-fn handle_client(stream: Arc<TcpStream>) -> ! {
-    let mut stream = stream.as_ref();
-    let mut reader = BufReader::new(stream);
-    let _ = stream.write(MESSAGE.as_bytes());
-
-    loop {
-        let mut input = String::new();
-        let _ = reader.read_line(&mut input);
-        let response = match process_message(&input) {
-            Ok(message) => message,
-            Err(e) => match e {
-                MessageError::WrongSyntax => "Malformed Message\n".to_owned(),
-            },
-        };
-        let _ = stream.write(response.as_bytes());
-    }
-}
-
-fn process_message(message: &str) -> Result<String, MessageError> {
-    let mut splitted = message.split(' ');
-    let mut command = splitted.nth(0).unwrap().trim().to_owned();
-    command.push_str(" to you too!\n");
-    Ok(command)
 }
