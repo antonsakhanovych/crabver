@@ -1,8 +1,4 @@
-use crabver::{
-    client::{self, Client},
-    message::MessageType,
-    processor::Processor,
-};
+use crabver::{client::Client, message::MessageType, processor::Processor};
 use std::net::{SocketAddr, TcpListener};
 use std::sync::{
     mpsc::{self, Receiver, Sender},
