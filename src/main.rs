@@ -27,7 +27,7 @@ fn main() {
             Ok(stream) => {
                 let stream = Arc::new(stream);
                 let client = Client::new(stream, sender);
-                thread::spawn(move || client::handle_client(client));
+                thread::spawn(move || client.handle());
             }
             Err(e) => eprintln!("Couldn't accept because of {}", e),
         }

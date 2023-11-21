@@ -11,6 +11,6 @@ impl Client {
     pub fn new(stream: Arc<TcpStream>, sender: Sender<MessageType>) -> Self {
         Self { stream, sender }
     }
+    // Consumes itself
+    pub fn handle(self) {}
 }
-
-pub fn handle_client(client: Client) {}
