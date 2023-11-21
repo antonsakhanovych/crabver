@@ -1,0 +1,24 @@
+* CrabVer
+Multiuser chat server written in rust.
+
+* How to start?
+** Compile
+#+begin_src bash
+cargo build --release
+#+end_src
+
+** Run
+#+begin_src bash
+./target/release/crabver
+#+end_src
+
+** Connect
+#+begin_src bash
+telnet 127.0.0.1 8080
+#+end_src
+
+* Dependencies
+No dependencies whatsoever. Standard library only!
+
+* Resources
+This project is inspired by [[https://github.com/tsoding/4at/tree/main][4at]] written by [[https://github.com/rexim][tsoding]]
